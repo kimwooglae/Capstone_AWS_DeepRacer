@@ -1,0 +1,52 @@
+[
+    {
+        "steering_angle": -30.0,
+        "speed": 1.5,
+        "index": 0
+    },
+    {
+        "steering_angle": -13.7481,
+        "speed": 2.016,
+        "index": 1
+    },
+    {
+        "steering_angle": -4.0046,
+        "speed": 1.736,
+        "index": 2
+    },
+    {
+        "steering_angle": -2.6994,
+        "speed": 3.5673,
+        "index": 3
+    },
+    {
+        "steering_angle": -1.0391,
+        "speed": 4.794,
+        "index": 4
+    },
+    {
+        "steering_angle": -0.9404,
+        "speed": 4.1988,
+        "index": 5
+    },
+    {
+        "steering_angle": 2.9901,
+        "speed": 2.9986,
+        "index": 6
+    },
+    {
+        "steering_angle": 3.7003,
+        "speed": 2.3287,
+        "index": 7
+    },
+    {
+        "steering_angle": 11.9654,
+        "speed": 1.8113,
+        "index": 8
+    },
+    {
+        "steering_angle": 30.0,
+        "speed": 1.5,
+        "index": 9
+    }
+]

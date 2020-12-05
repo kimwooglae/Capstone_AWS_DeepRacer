@@ -1,0 +1,107 @@
+[
+    {
+        "steering_angle": -30.0,
+        "speed": 1.2,
+        "index": 0
+    },
+    {
+        "steering_angle": -21.6996,
+        "speed": 1.5754,
+        "index": 1
+    },
+    {
+        "steering_angle": -16.1368,
+        "speed": 2.7737,
+        "index": 2
+    },
+    {
+        "steering_angle": -11.5441,
+        "speed": 6.9942,
+        "index": 3
+    },
+    {
+        "steering_angle": -10.2965,
+        "speed": 4.86,
+        "index": 4
+    },
+    {
+        "steering_angle": -9.4373,
+        "speed": 3.9278,
+        "index": 5
+    },
+    {
+        "steering_angle": -9.1709,
+        "speed": 1.5831,
+        "index": 6
+    },
+    {
+        "steering_angle": -5.5385,
+        "speed": 2.5806,
+        "index": 7
+    },
+    {
+        "steering_angle": -0.8689,
+        "speed": 2.1438,
+        "index": 8
+    },
+    {
+        "steering_angle": 0.6219,
+        "speed": 3.5174,
+        "index": 9
+    },
+    {
+        "steering_angle": 0.7311,
+        "speed": 7.5727,
+        "index": 10
+    },
+    {
+        "steering_angle": 0.7952,
+        "speed": 5.775,
+        "index": 11
+    },
+    {
+        "steering_angle": 0.9405,
+        "speed": 4.5567,
+        "index": 12
+    },
+    {
+        "steering_angle": 2.8938,
+        "speed": 1.5103,
+        "index": 13
+    },
+    {
+        "steering_angle": 5.9261,
+        "speed": 6.8158,
+        "index": 14
+    },
+    {
+        "steering_angle": 6.7846,
+        "speed": 2.7161,
+        "index": 15
+    },
+    {
+        "steering_angle": 10.5189,
+        "speed": 1.9965,
+        "index": 16
+    },
+    {
+        "steering_angle": 10.7541,
+        "speed": 4.6723,
+        "index": 17
+    },
+    {
+        "steering_angle": 16.3865,
+        "speed": 3.4834,
+        "index": 18
+    },
+    {
+        "steering_angle": 18.4257,
+        "speed": 1.4578,
+        "index": 19
+    },
+    {
+        "steering_angle": 30.0,
+        "speed": 1.2,
+        "index": 20
+    }
+]
