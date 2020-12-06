@@ -5,6 +5,7 @@ class Reward:
     def __init__(self, verbose=False):
         self.first_racingpoint_index = 0  # None
         self.verbose = verbose
+        self.survive_reward = False
 
     def reward_function(self, params):
 
@@ -444,9 +445,10 @@ class Reward:
         objects_distance = params['objects_distance']
         objects_location = params['objects_location']
         objects_left_of_center = params['objects_left_of_center']
-        _, next_object_index = params['closest_objects']
+        previous_object_index, next_object_index = params['closest_objects']
 
-        distance_closest_object = dist_2_points(x, objects_location[next_object_index][0], y, objects_location[next_object_index][1])
+        distance_closest_previous_object = dist_2_points(x, objects_location[previous_object_index][0], y, objects_location[previous_object_index][1])
+        distance_closest_next_object = dist_2_points(x, objects_location[next_object_index][0], y, objects_location[next_object_index][1])
         is_same_lane = objects_left_of_center[next_object_index] == is_left_of_center
 
         if len(objects_location) > 0:
@@ -482,7 +484,7 @@ class Reward:
                 objects_lookahead_waypoint_index1.append(indexes_point_cyclical(obstacle_index, -1 * object_threshold_step_number, len(racing_track)))
                 objects_lookahead_waypoint_index2.append(-1)
             #print('objects_waypoint_index',objects_waypoint_index)
-            #print('waypoints:', closest_waypoints, ', progress:%0.2f'%progress, ', same_lane:', is_same_lane , ', next_object_index:', next_object_index, ', distance:%0.2f'%distance_closest_object, ', speed:', speed , ', steering_angle:', steering_angle )
+            #print('waypoints:', closest_waypoints, ', progress:%0.2f'%progress, ', same_lane:', is_same_lane , ', next_object_index:', next_object_index, ', distance:%0.2f'%distance_closest_next_object, ', speed:', speed , ', steering_angle:', steering_angle )
             #print('objects_lookahead_waypoint_index1',objects_lookahead_waypoint_index1)
             #print('objects_lookahead_waypoint_index2',objects_lookahead_waypoint_index2)
             for i in range(len(objects_location)):
@@ -697,39 +699,55 @@ class Reward:
         if all_wheels_on_track == False:
             reward = 1e-3
 
-        if distance_closest_object < 3:
-            reward = 4
-            if is_same_lane:
-                if 0.8 <= distance_closest_object < 1.2: 
-                    print("same_lane and distance_closest_object(0.5): %0.2f "% distance_closest_object)
-                    reward *= 0.5
-                elif 0.4 <= distance_closest_object < 0.8:
-                    print("same_lane and distance_closest_object(0.2): %0.2f "% distance_closest_object)
-                    reward *= 0.2
-                elif distance_closest_object < 0.4:
-                    print("same_lane and distance_closest_object(0): %0.2f "% distance_closest_object)
-                    reward = 1e-3 # Likely crashed
-            print('distance: %0.2f'% distance_closest_object, ', same_lane:', is_same_lane, ', reward: %0.2f'% reward, ', waypoints:', closest_waypoints, ', next_object_index:', next_object_index,' objects_waypoint_index',objects_waypoint_index)
-        else:
-            print('distance: %0.2f'% distance_closest_object, ', same_lane:', is_same_lane, ', reward: %0.2f'% reward, ', waypoints:', closest_waypoints, ', next_object_index:', next_object_index,' objects_waypoint_index',objects_waypoint_index)
-            ####################### VERBOSE #######################
+        if distance_closest_next_object < 2 and distance_closest_next_object < distance_closest_previous_object:
+            self.survive_reward = False
+            # Reward if the agent stays inside the two borders of the track
+            if all_wheels_on_track and (0.5 * track_width - distance_from_center) >= 0.05:
+                reward_avoid = 16.0
+            else:
+                reward_avoid = 1e-3
 
-            if self.verbose == True:
-                print("Closest index: %i" % closest_index)
-                print("Distance to racing line: %f" % dist)
-                print("=== Distance reward: %f ===" % (distance_reward * DISTANCE_MULTIPLE))
-                print("Optimal speed: %f" % optimals[2])
-                print("Speed difference: %f" % speed_diff)
-                print("=== Speed reward: %f ===" % (speed_reward * SPEED_MULTIPLE))
-                print("Direction difference: %f" % direction_diff)
-                print("Predicted time: %f" % projected_time)
-                print("=== Steps reward: %f ===" % steps_reward)
-                print("=== Finish reward: %f ===" % finish_reward)
-                print("=== distance_closest_object: %0.2f ===" % distance_closest_object)
-                print("=== Total reward: %f ===" % reward)
+            if is_same_lane:
+                if 1.0 <= distance_closest_next_object < 2: 
+                    print("same(.5): %0.2f %.02f"% (distance_closest_previous_object, distance_closest_next_object))
+                    reward_avoid *= 0.5
+                elif 0.4 <= distance_closest_next_object < 1.0:
+                    print("same(.2): %0.2f %.02f"% (distance_closest_previous_object, distance_closest_next_object))
+                    reward_avoid *= 0.2
+                elif distance_closest_next_object < 0.4:
+                    print("same (0): %0.2f %.02f"% (distance_closest_previous_object, distance_closest_next_object))
+                    reward_avoid = 0 # Likely crashed
+                    reward = 1e-3 # Likely crashed
+            else:
+                print("different:%0.2f %.02f"% (distance_closest_previous_object, distance_closest_next_object))
+
+            reward = reward + reward_avoid
+        elif distance_closest_previous_object < 1.5:
+            if is_same_lane == False and self.survive_reward == False:
+                print("surv(64): %0.2f %.02f"% (distance_closest_previous_object, distance_closest_next_object))
+                reward = 64
+                self.survive_reward = True
+        else:
+            self.survive_reward = False
+            
+        print('distance: %0.2f %0.2f'% (distance_closest_previous_object, distance_closest_next_object), ', same:', is_same_lane, ', reward: %0.2f'% reward, ', waypoints:', closest_waypoints, ', next_obj:', next_object_index,' obj_index',objects_waypoint_index)
+
+        if self.verbose == True:
+            print("Closest index: %i" % closest_index)
+            print("Distance to racing line: %f" % dist)
+            print("=== Distance reward: %f ===" % (distance_reward * DISTANCE_MULTIPLE))
+            print("Optimal speed: %f" % optimals[2])
+            print("Speed difference: %f" % speed_diff)
+            print("=== Speed reward: %f ===" % (speed_reward * SPEED_MULTIPLE))
+            print("Direction difference: %f" % direction_diff)
+            print("Predicted time: %f" % projected_time)
+            print("=== Steps reward: %f ===" % steps_reward)
+            print("=== Finish reward: %f ===" % finish_reward)
+            print("=== distance_closest_next_object: %0.2f ===" % distance_closest_next_object)
+            print("=== Total reward: %f ===" % reward)
 
         #print('objects_waypoint_index',objects_waypoint_index)
-        #print('waypoints:', closest_waypoints, ', progress:%0.2f'%progress, ', same_lane:', is_same_lane , ', next_object_index:', next_object_index, ', distance:%0.2f'%distance_closest_object, ', speed:', speed , ', steering_angle:', steering_angle )
+        #print('waypoints:', closest_waypoints, ', progress:%0.2f'%progress, ', same_lane:', is_same_lane , ', next_object_index:', next_object_index, ', distance:%0.2f'%distance_closest_next_object, ', speed:', speed , ', steering_angle:', steering_angle )
         
 
 
@@ -739,7 +757,7 @@ class Reward:
         return float(reward)
 
 
-reward_object = Reward(verbose=True)  # add parameter verbose=True to get noisy output for testing
+reward_object = Reward(verbose=False)  # add parameter verbose=True to get noisy output for testing
 
 
 def reward_function(params):
